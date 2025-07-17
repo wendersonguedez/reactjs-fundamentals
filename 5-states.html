@@ -27,8 +27,11 @@
             return (
                 <>
                     <p>Contador: {counter}</p>
+                    <button onClick={() => setCounter(10)}>
+                        Atualizar
+                    </button>
                     <button onClick={handleCounter}>
-                        Atualizar contador
+                        Incrementar
                     </button>
                 </>
             )
