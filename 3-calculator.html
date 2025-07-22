@@ -177,12 +177,11 @@
                 if (inputValue === "C") {
                     setOperation("");
                     setResult("");
-
                     return;
                 }
                 if (inputValue === "CE") {
                     setResult("");
-                    setOperation(operation.slice(0, -2));
+                    setOperation(operation.slice(0, -1));
                     return;
                 }
 
@@ -197,11 +196,10 @@
 
                 if (result) {
                     setOperation(isNaN(inputValue)
-                        ? `${result}${inputValue === ',' ? "" : " "}${inputValue}`
+                        ? `${result}${inputValue}`
                         : inputValue);
 
                     setResult("");
-
                     return;
                 }
 
@@ -210,7 +208,7 @@
                     return;
                 }
 
-                setOperation(`${operation}${operation.endsWith(',') ? "" : " "}${inputValue}`);
+                setOperation(`${operation}${inputValue}`);
             }
 
             return (
