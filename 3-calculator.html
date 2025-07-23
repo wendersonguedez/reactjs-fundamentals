@@ -124,6 +124,63 @@
             )
         }
 
+        function useCalculator() {
+            const [operation, setOperation] = React.useState('');
+            const [result, setResult] = React.useState('');
+            const { updateHistory } = React.useContext(CalculatorContext);
+
+            function doOperation(inputValue) {
+                if (inputValue === "C") {
+                    setOperation("");
+                    setResult("");
+
+                    return;
+                }
+
+                if (inputValue === "CE") {
+                    setResult("");
+                    setOperation(operation.slice(0, -1));
+
+                    return;
+                }
+
+                if (inputValue === "=") {
+                    const operationResult = eval(operation.replace(/,/g, '.'));
+
+                    const parsedResult = operationResult.toString()?.replace(/\./g, ',');
+
+                    setResult(parsedResult)
+                    updateHistory(operation, parsedResult);
+
+                    return;
+                }
+
+                if (result) {
+                    setOperation(isNaN(inputValue)
+                        ? `${result}${inputValue}`
+                        : inputValue);
+
+                    setResult("");
+
+                    return;
+                }
+
+                if (inputValue === ',' && !operation.endsWith(',')) {
+                    setOperation(`${operation},`);
+
+                    return;
+                }
+
+                setOperation(`${operation}${inputValue}`);
+            }
+
+            return {
+                operation,
+                result,
+                doOperation
+            }
+        }
+
         function Text({
             as = 'span',
             children,
@@ -203,54 +260,11 @@
         }
 
         function Calculator() {
-            const [operation, setOperation] = React.useState('');
-            const [result, setResult] = React.useState('');
-            const { updateHistory } = React.useContext(CalculatorContext);
+            const { operation, result, doOperation } = useCalculator();
 
 
             function handleInputClick(inputValue) {
-                if (inputValue === "C") {
-                    setOperation("");
-                    setResult("");
-
-                    return;
-                }
-
-                if (inputValue === "CE") {
-                    setResult("");
-                    setOperation(operation.slice(0, -1));
-
-                    return;
-                }
-
-                if (inputValue === "=") {
-                    const operationResult = eval(operation.replace(/,/g, '.'));
-
-                    const parsedResult = operationResult.toString()?.replace(/\./g, ',');
-
-                    setResult(parsedResult)
-                    updateHistory(operation, parsedResult);
-
-                    return;
-                }
-
-                if (result) {
-                    setOperation(isNaN(inputValue)
-                        ? `${result}${inputValue}`
-                        : inputValue);
-
-                    setResult("");
-
-                    return;
-                }
-
-                if (inputValue === ',' && !operation.endsWith(',')) {
-                    setOperation(`${operation},`);
-
-                    return;
-                }
-
-                setOperation(`${operation}${inputValue}`);
+                doOperation(inputValue);
             }
 
             return (
