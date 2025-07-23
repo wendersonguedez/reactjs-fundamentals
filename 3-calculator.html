@@ -90,6 +90,23 @@
             ],
         ];
 
+        const CalculatorContext = React.createContext();
+
+        function CalculatorProvider({ children }) {
+            const [history, setHistory] = React.useState([]);
+
+            function updateHistory(operation, parsedResult) {
+                setHistory((prev) => [...prev, `${operation}=${parsedResult}`])
+            }
+
+            return (
+                <CalculatorContext.Provider value={{ history, updateHistory }}>
+                    {children}
+                </CalculatorContext.Provider>
+            )
+        }
+
+
         function Text({
             as = 'span',
             children,
@@ -171,17 +188,21 @@
         function Calculator() {
             const [operation, setOperation] = React.useState('');
             const [result, setResult] = React.useState('');
+            const { updateHistory } = React.useContext(CalculatorContext);
 
 
             function handleInputClick(inputValue) {
                 if (inputValue === "C") {
                     setOperation("");
                     setResult("");
+
                     return;
                 }
+
                 if (inputValue === "CE") {
                     setResult("");
                     setOperation(operation.slice(0, -1));
+
                     return;
                 }
 
@@ -191,6 +212,8 @@
                     const parsedResult = operationResult.toString()?.replace(/\./g, ',');
 
                     setResult(parsedResult)
+                    updateHistory(operation, parsedResult);
+
                     return;
                 }
 
@@ -200,11 +223,13 @@
                         : inputValue);
 
                     setResult("");
+
                     return;
                 }
 
                 if (inputValue === ',' && !operation.endsWith(',')) {
                     setOperation(`${operation},`);
+
                     return;
                 }
 
@@ -243,6 +268,7 @@
         }
 
         function OperationHistory() {
+            const { history } = React.useContext(CalculatorContext);
             return (
                 <Card className="py-10 px-8 w-full">
                     <Text
@@ -253,14 +279,14 @@
                         Histórico de Operações
                     </Text>
 
-                    <ul className="flex flex-col gap-3">
-                        <Text as="li">
-                            1 + 1 = 2
-                        </Text>
-                        <Text as="li">
-                            2 + 3 + 1 = 6
-                        </Text>
-                    </ul>
+                    {history.length > 0 ? <ul className="flex flex-col gap-3">
+                        {history.map((value, index) => (
+                            <Text as="li" key={`item-${index}`}>
+                                {value}
+                            </Text>
+                        ))}
+                    </ul> : "Ainda não foram realizadas operações!"}
+
                 </Card>
             )
         }
@@ -273,8 +299,10 @@
                     items-center sm:items-stretch
                     gap-3
                 `}>
-                    <Calculator />
-                    <OperationHistory />
+                    <CalculatorProvider>
+                        <Calculator />
+                        <OperationHistory />
+                    </CalculatorProvider>
                 </main>
             )
         }
